@@ -39,7 +39,7 @@ namespace RatingService.Migrations
                     HostId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     GuestId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    LastChangedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LastChangedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     Rating = table.Column<int>(type: "int", nullable: false),
                     Comment = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     GuestFirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),

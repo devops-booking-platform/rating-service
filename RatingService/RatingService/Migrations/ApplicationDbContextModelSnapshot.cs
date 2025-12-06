@@ -103,7 +103,7 @@ namespace RatingService.Migrations
                     b.Property<Guid>("HostId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTimeOffset>("LastChangedAt")
+                    b.Property<DateTimeOffset?>("LastChangedAt")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<int>("Rating")

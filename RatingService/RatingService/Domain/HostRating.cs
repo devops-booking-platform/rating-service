@@ -10,7 +10,7 @@ public class HostRating : EntityWithGuidId
     public Guid HostId { get; set; }
     public Guid GuestId { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
-    public DateTimeOffset LastChangedAt { get; set; }
+    public DateTimeOffset? LastChangedAt { get; set; }
     public int Rating { get; set; }
     public string Comment { get; set; } = string.Empty;
 
