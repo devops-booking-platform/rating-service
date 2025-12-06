@@ -13,6 +13,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IRatingService, Services.RatingService>();
 
         return services;
     }
