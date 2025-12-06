@@ -66,6 +66,7 @@ public class HostRatingService(
     public async Task<PagedResult<RatingResponse>> GetRatings(PagedRequest request)
         => await hostRatingRepository
             .Query()
+            .OrderByDescending(x => x.LastChangedAt)
             .ToPagedAsync<HostRating, RatingResponse>(request.Page,
                 request.PageSize,
                 mapper.ConfigurationProvider,

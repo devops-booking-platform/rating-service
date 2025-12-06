@@ -29,7 +29,8 @@ public class AccommodationRating : EntityWithGuidId
             GuestLastName = guestLastName ?? string.Empty,
             GuestUsername = guestUsername ?? string.Empty,
             Comment = request.Comment,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            LastChangedAt = DateTimeOffset.UtcNow
         };
 
     public void Update(AccommodationRatingRequest request, string? guestFirstName,
