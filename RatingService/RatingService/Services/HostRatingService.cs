@@ -1,6 +1,8 @@
-﻿using RatingService.Common.Exceptions;
+﻿using AutoMapper;
+using RatingService.Common.Exceptions;
 using RatingService.Domain;
 using RatingService.Domain.DTOs;
+using RatingService.Repositories;
 using RatingService.Repositories.Interfaces;
 using RatingService.Services.Interfaces;
 
@@ -9,7 +11,8 @@ namespace RatingService.Services;
 public class HostRatingService(
     IRepository<HostRating> hostRatingRepository,
     ICurrentUserService currentUserService,
-    IUnitOfWork unitOfWork) : IHostRatingService
+    IUnitOfWork unitOfWork,
+    IMapper mapper) : IHostRatingService
 {
     public async Task CreateOrUpdateHostRating(HostRatingRequest request)
     {
@@ -58,5 +61,21 @@ public class HostRatingService(
 
         hostRatingRepository.Remove(rating);
         await unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task<PagedResult<RatingResponse>> GetRatings(PagedRequest request)
+        => await hostRatingRepository
+            .Query()
+            .ToPagedAsync<HostRating, RatingResponse>(request.Page,
+                request.PageSize,
+                mapper.ConfigurationProvider,
+                x => x.Rating);
+
+    public async Task<GetRatingResponse> GetRating(Guid id)
+    {
+        var rating = await hostRatingRepository.GetByIdAsync(id) ??
+                     throw new NotFoundException("Rating not found");
+
+        return mapper.Map<GetRatingResponse>(rating);
     }
 }

@@ -25,4 +25,18 @@ public class HostRatingController(IHostRatingService hostRatingService) : Contro
         await hostRatingService.DeleteHostRating(id);
         return StatusCode(StatusCodes.Status201Created);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetRatings([FromQuery] PagedRequest request)
+    {
+        var result = await hostRatingService.GetRatings(request);
+        return Ok(result);
+    }
+    
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetRating(Guid id)
+    {
+        var result = await hostRatingService.GetRating(id);
+        return Ok(result);
+    }
 }

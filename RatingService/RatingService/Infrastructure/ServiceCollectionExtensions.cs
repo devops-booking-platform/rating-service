@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using RatingService.Domain.Mappings;
 using RatingService.Repositories;
 using RatingService.Repositories.Interfaces;
 using RatingService.Services;
@@ -15,6 +16,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IHostRatingService, HostRatingService>();
         services.AddScoped<IAccommodationRatingService, AccommodationRatingService>();
+        services.AddAutoMapper(cfg => cfg.AddProfile<RatingMappingProfile>());
 
         return services;
     }

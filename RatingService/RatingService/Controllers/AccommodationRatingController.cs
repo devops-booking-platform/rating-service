@@ -24,4 +24,18 @@ public class AccommodationRatingController(IAccommodationRatingService accommoda
         await accommodationRatingService.DeleteAccommodationRating(id);
         return NoContent();
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetRatings([FromQuery] PagedRequest request)
+    {
+        var result = await accommodationRatingService.GetRatings(request);
+        return Ok(result);
+    }
+    
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetRating(Guid id)
+    {
+        var result = await accommodationRatingService.GetRating(id);
+        return Ok(result);
+    }
 }
