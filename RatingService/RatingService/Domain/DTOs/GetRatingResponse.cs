@@ -3,7 +3,8 @@
 public class GetRatingResponse
 {
     public Guid Id { get; set; }
-    public Guid HostId { get; set; }
+    public Guid? HostId { get; set; }
+    public Guid? AccommodationId { get; set; }
     public Guid GuestId { get; set; }
     public int Rating { get; set; }
     public string Comment { get; set; } = string.Empty;
