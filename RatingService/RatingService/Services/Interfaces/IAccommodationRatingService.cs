@@ -2,8 +2,8 @@
 
 namespace RatingService.Services.Interfaces;
 
-public interface IRatingService
+public interface IAccommodationRatingService
 {
-    Task CreateOrUpdateHostRating(HostRatingRequest request);
     Task CreateOrUpdateAccommodationRating(AccommodationRatingRequest request);
+    Task DeleteAccommodationRating(Guid id);
 }

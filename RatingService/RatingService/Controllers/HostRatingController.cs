@@ -5,25 +5,24 @@ using RatingService.Services.Interfaces;
 
 namespace RatingService.Controllers;
 
-[Route("api/ratings")]
+[Route("api/host-ratings")]
 [ApiController]
-public class RatingController(IRatingService ratingService) : ControllerBase
+public class HostRatingController(IHostRatingService hostRatingService) : ControllerBase
 {
     [HttpPost]
-    [Route("host")]
     [Authorize(Roles = "Guest")]
     public async Task<IActionResult> CreateOrUpdateHostRating([FromBody] HostRatingRequest request)
     {
-        await ratingService.CreateOrUpdateHostRating(request);
+        await hostRatingService.CreateOrUpdateHostRating(request);
         return StatusCode(StatusCodes.Status201Created);
     }
 
-    [HttpPost]
-    [Route("accommodation")]
+    [HttpDelete]
+    [Route("{id:guid}")]
     [Authorize(Roles = "Guest")]
-    public async Task<IActionResult> CreateOrUpdateAccommodationRating([FromBody] AccommodationRatingRequest request)
+    public async Task<IActionResult> DeleteHostRating(Guid id)
     {
-        await ratingService.CreateOrUpdateAccommodationRating(request);
+        await hostRatingService.DeleteHostRating(id);
         return StatusCode(StatusCodes.Status201Created);
     }
 }
