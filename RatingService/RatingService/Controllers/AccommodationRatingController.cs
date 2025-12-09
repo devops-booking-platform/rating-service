@@ -26,7 +26,7 @@ public class AccommodationRatingController(IAccommodationRatingService accommoda
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetRatings([FromQuery] PagedRequest request)
+    public async Task<IActionResult> GetRatings([FromQuery] GetAccommodationRatingsRequest request)
     {
         var result = await accommodationRatingService.GetRatings(request);
         return Ok(result);

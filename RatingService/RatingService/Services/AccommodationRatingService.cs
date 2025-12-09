@@ -63,9 +63,10 @@ public class AccommodationRatingService(
         await unitOfWork.SaveChangesAsync();
     }
 
-    public async Task<PagedResult<RatingResponse>> GetRatings(PagedRequest request)
+    public async Task<PagedResult<RatingResponse>> GetRatings(GetAccommodationRatingsRequest request)
         => await accommodationRatingRepository
             .Query()
+            .Where(x => x.AccommodationId == request.AccommodationId)
             .OrderByDescending(x => x.LastChangedAt)
             .ToPagedAsync<AccommodationRating, RatingResponse>(request.Page,
                 request.PageSize,

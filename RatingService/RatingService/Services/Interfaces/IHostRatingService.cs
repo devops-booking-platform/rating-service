@@ -6,6 +6,6 @@ public interface IHostRatingService
 {
     Task CreateOrUpdateHostRating(HostRatingRequest request);
     Task DeleteHostRating(Guid id);
-    Task<PagedResult<RatingResponse>> GetRatings(PagedRequest request);
+    Task<PagedResult<RatingResponse>> GetRatings(GetHostRatingsRequest request);
     Task<GetRatingResponse> GetRating(Guid id);
 }

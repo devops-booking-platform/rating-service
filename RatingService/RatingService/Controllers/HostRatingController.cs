@@ -27,7 +27,7 @@ public class HostRatingController(IHostRatingService hostRatingService) : Contro
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetRatings([FromQuery] PagedRequest request)
+    public async Task<IActionResult> GetRatings([FromQuery] GetHostRatingsRequest request)
     {
         var result = await hostRatingService.GetRatings(request);
         return Ok(result);
