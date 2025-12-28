@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using RatingService.Common.Events;
 using RatingService.Domain.Mappings;
 using RatingService.Repositories;
 using RatingService.Repositories.Interfaces;
@@ -17,6 +18,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IHostRatingService, HostRatingService>();
         services.AddScoped<IAccommodationRatingService, AccommodationRatingService>();
         services.AddAutoMapper(cfg => cfg.AddProfile<RatingMappingProfile>());
+        services.AddSingleton<IEventBus, RabbitMqEventBus>();
 
         return services;
     }
