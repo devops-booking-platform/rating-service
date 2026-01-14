@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using RatingService.Common.Events;
+using RatingService.Common.Events.Published;
 using RatingService.Common.Exceptions;
 using RatingService.Domain;
 using RatingService.Domain.DTOs;
@@ -12,6 +14,7 @@ public class HostRatingService(
     IRepository<HostRating> hostRatingRepository,
     ICurrentUserService currentUserService,
     IUnitOfWork unitOfWork,
+    IEventBus eventBus,
     IMapper mapper) : IHostRatingService
 {
     public async Task CreateOrUpdateHostRating(HostRatingRequest request)
@@ -43,6 +46,13 @@ public class HostRatingService(
 
             await hostRatingRepository.AddAsync(hostRating);
         }
+        
+        await eventBus.PublishAsync(
+            new HostRatedIntegrationEvent(
+                request.HostId,
+                hostRating.GuestUsername,
+                hostRating.Rating
+            ));
 
         await unitOfWork.SaveChangesAsync();
     }

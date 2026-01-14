@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
+using RatingService.Common.Events;
+using RatingService.Common.Events.Published;
 using RatingService.Common.Exceptions;
 using RatingService.Domain;
 using RatingService.Domain.DTOs;
+using RatingService.Infrastructure.Clients;
 using RatingService.Repositories;
 using RatingService.Repositories.Interfaces;
 using RatingService.Services.Interfaces;
@@ -11,8 +14,10 @@ namespace RatingService.Services;
 public class AccommodationRatingService(
     IRepository<AccommodationRating> accommodationRatingRepository,
     ICurrentUserService currentUserService,
+    IAccommodationClient accommodationClient,
     IUnitOfWork unitOfWork,
-    IMapper mapper) : IAccommodationRatingService
+    IMapper mapper,
+    IEventBus eventBus) : IAccommodationRatingService
 {
     public async Task CreateOrUpdateAccommodationRating(AccommodationRatingRequest request)
     {
@@ -43,6 +48,16 @@ public class AccommodationRatingService(
 
             await accommodationRatingRepository.AddAsync(rating);
         }
+
+        var accommodation = await accommodationClient.GetAccommodationInfo(rating.AccommodationId);
+        await eventBus.PublishAsync(
+            new AccommodationRatedIntegrationEvent(
+                accommodation.HostId,
+                request.AccommodationId,
+                rating.GuestUsername,
+                accommodation.Name,
+                rating.Rating
+                ));
 
         await unitOfWork.SaveChangesAsync();
     }

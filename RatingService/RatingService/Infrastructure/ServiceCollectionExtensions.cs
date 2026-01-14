@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using RatingService.Common.Events;
 using RatingService.Domain.Mappings;
+using RatingService.Infrastructure.Clients;
 using RatingService.Repositories;
 using RatingService.Repositories.Interfaces;
 using RatingService.Services;
@@ -10,11 +11,17 @@ namespace RatingService.Infrastructure;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddAccommodationServiceDependencies(this IServiceCollection services)
+    public static IServiceCollection AddAccommodationServiceDependencies(this IServiceCollection services, IConfiguration config)
     {
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        
+        services.AddHttpClient<IAccommodationClient, AccommodationClient>(http =>
+        {
+            http.BaseAddress = new Uri(config["Services:Accommodation:BaseUrl"]!);
+        });
+        
         services.AddScoped<IHostRatingService, HostRatingService>();
         services.AddScoped<IAccommodationRatingService, AccommodationRatingService>();
         services.AddAutoMapper(cfg => cfg.AddProfile<RatingMappingProfile>());
