@@ -14,6 +14,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
             UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
             NotFoundException => StatusCodes.Status404NotFound,
             InvalidOperationException => StatusCodes.Status400BadRequest,
+            ExternalServiceException => StatusCodes.Status502BadGateway,
             _ => StatusCodes.Status500InternalServerError
         };
 
