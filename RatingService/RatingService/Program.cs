@@ -12,6 +12,7 @@ using Serilog;
 using System.Security.Claims;
 using System.Text;
 using Prometheus;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((ctx, lc) => lc
@@ -47,8 +48,22 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<RabbitMqSettings>(
     builder.Configuration.GetSection("RabbitMQ"));
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
+builder.Services.Configure<RedisSettings>(builder.Configuration.GetSection("Redis"));
+
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
 
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var redisSettings = builder.Configuration.GetSection("Redis").Get<RedisSettings>();
+    var options = new ConfigurationOptions
+    {
+        EndPoints = { $"{redisSettings!.Host}:{redisSettings.Port}" },
+        Password = redisSettings.Password,
+        AbortOnConnectFail = false
+    };
+
+    return ConnectionMultiplexer.Connect(options);
+});
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -104,6 +119,7 @@ if (!app.Environment.IsEnvironment("Test"))
     }
 }
 
+app.UseMiddleware<VisitorTrackingMiddleware>();
 app.UseHttpMetrics();
 app.UseRouting();
 app.UseExceptionHandler();
