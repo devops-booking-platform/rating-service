@@ -7,6 +7,7 @@ using Moq;
 using RatingService.Common.Events;
 using RatingService.Data;
 using RatingService.Infrastructure.Clients;
+using StackExchange.Redis;
 
 namespace RatingService.Tests.Integration;
 
@@ -42,6 +43,19 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             // Build the service provider
             var sp = services.BuildServiceProvider();
 
+            services.RemoveAll<IConnectionMultiplexer>();
+            var mockRedisDb = new Mock<IDatabase>();
+            mockRedisDb.Setup(x => x.KeyExistsAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
+                .ReturnsAsync(false);
+            mockRedisDb.Setup(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<TimeSpan?>(), 
+                    It.IsAny<bool>(), It.IsAny<When>(), It.IsAny<CommandFlags>()))
+                .ReturnsAsync(true);
+
+            var mockRedis = new Mock<IConnectionMultiplexer>();
+            mockRedis.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object>()))
+                .Returns(mockRedisDb.Object);
+                
+            services.AddSingleton<IConnectionMultiplexer>(mockRedis.Object);
             // Create a scope to get the database context
             using var scope = sp.CreateScope();
             var scopedServices = scope.ServiceProvider;
