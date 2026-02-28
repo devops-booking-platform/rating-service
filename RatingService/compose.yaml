@@ -1,0 +1,7 @@
+﻿services:
+  ratingservice:
+    image: ratingservice
+    build:
+      context: .
+      dockerfile: RatingService/Dockerfile
+

@@ -1,0 +1,98 @@
+﻿using AutoMapper;
+using RatingService.Common.Events;
+using RatingService.Common.Events.Published;
+using RatingService.Common.Exceptions;
+using RatingService.Domain;
+using RatingService.Domain.DTOs;
+using RatingService.Infrastructure.Clients;
+using RatingService.Repositories;
+using RatingService.Repositories.Interfaces;
+using RatingService.Services.Interfaces;
+
+namespace RatingService.Services;
+
+public class AccommodationRatingService(
+    IRepository<AccommodationRating> accommodationRatingRepository,
+    ICurrentUserService currentUserService,
+    IAccommodationClient accommodationClient,
+    IUnitOfWork unitOfWork,
+    IMapper mapper,
+    IEventBus eventBus) : IAccommodationRatingService
+{
+    public async Task CreateOrUpdateAccommodationRating(AccommodationRatingRequest request)
+    {
+        var userId = currentUserService.UserId;
+        if (!userId.HasValue)
+            throw new UnauthorizedAccessException("You don't have access to this action.");
+
+        AccommodationRating? rating;
+
+        if (request.Id.HasValue)
+        {
+            rating = await accommodationRatingRepository.GetByIdAsync(request.Id.Value)
+                     ?? throw new NotFoundException("Rating not found.");
+
+            rating.Update(request,
+                currentUserService.FirstName,
+                currentUserService.LastName,
+                currentUserService.Username);
+        }
+        else
+        {
+            rating = AccommodationRating.Create(
+                request,
+                userId.Value,
+                currentUserService.FirstName,
+                currentUserService.LastName,
+                currentUserService.Username);
+
+            await accommodationRatingRepository.AddAsync(rating);
+        }
+
+        var accommodation = await accommodationClient.GetAccommodationInfo(rating.AccommodationId);
+        await eventBus.PublishAsync(
+            new AccommodationRatedIntegrationEvent(
+                accommodation.HostId,
+                request.AccommodationId,
+                rating.GuestUsername,
+                accommodation.Name,
+                rating.Rating
+                ));
+
+        await unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task DeleteAccommodationRating(Guid id)
+    {
+        var userId = currentUserService.UserId;
+        if (!userId.HasValue)
+            throw new UnauthorizedAccessException("You don't have access to this action.");
+
+        var rating = await accommodationRatingRepository.GetByIdAsync(id)
+                     ?? throw new NotFoundException("Rating not found");
+
+        if (rating.GuestId != userId.Value)
+            throw new UnauthorizedAccessException("You don't have access to this action.");
+
+        accommodationRatingRepository.Remove(rating);
+        await unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task<PagedResult<RatingResponse>> GetRatings(GetAccommodationRatingsRequest request)
+        => await accommodationRatingRepository
+            .Query()
+            .Where(x => x.AccommodationId == request.AccommodationId)
+            .OrderByDescending(x => x.LastChangedAt)
+            .ToPagedAsync<AccommodationRating, RatingResponse>(request.Page,
+                request.PageSize,
+                mapper.ConfigurationProvider,
+                x => x.Rating);
+
+    public async Task<GetRatingResponse> GetRating(Guid id)
+    {
+        var rating = await accommodationRatingRepository.GetByIdAsync(id) ??
+                     throw new NotFoundException("Rating not found");
+
+        return mapper.Map<GetRatingResponse>(rating);
+    }
+}
